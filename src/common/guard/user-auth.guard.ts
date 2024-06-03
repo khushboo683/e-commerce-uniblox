@@ -1,55 +1,44 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import httpContext = require('express-http-context')
+import httpContext = require('express-http-context');
 import * as jwt from 'jsonwebtoken';
-import _ = require("lodash");
-import { Roles } from '../constants/roles';
 
 @Injectable()
 export class UserAuthGuard implements CanActivate {
   constructor() {}
 
-  validateAuthToken(req: Request): boolean {
+  validateAuthToken(req: any): boolean {
     let isValid = true;
     let tokenPayload: any;
     try {
       const token = req.headers['authorization']?.split(' ')[1];
-      console.log("token", token)
-      if (_.isEmpty(token)) {
-      throw {
-        error:"token missing"
-      }
+      console.log("token", token);
+      if (!token) {
+        throw new Error("Token missing");
       }
       httpContext.set("token", token);
       
       tokenPayload = jwt.decode(token);
 
       if (!tokenPayload) {
-      throw {
-        error:"Payload missing"
+        throw new Error("Payload missing");
       }
-      }
-      httpContext.set("tokenPayload", tokenPayload);
 
+      // Set the mobile value from token payload
       if (tokenPayload.hasOwnProperty("mobile")) { 
         httpContext.set("mobile", tokenPayload.mobile);
       } 
-      if (!tokenPayload.hasOwnProperty('role') || tokenPayload.role !== Roles.USER) {
-        throw {
-          error: 'Invalid role',
-        };
-      }
-      httpContext.set('role', tokenPayload.role);
-      console.log("token payload", tokenPayload)
+
+      console.log("token payload", tokenPayload);
       return isValid;
     } catch (e) {
       isValid = false;
+      console.error(e);
       return isValid;
     }
-
   }
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-  return this.validateAuthToken(request);
 
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    return this.validateAuthToken(request);
   }
 }

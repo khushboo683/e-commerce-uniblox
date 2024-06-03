@@ -7,8 +7,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { UserModelHelperModule } from './modules/model-helper/user-model-helper/user-model-helper.module';
 import { DatabaseModule } from './common/database/database.module';
-import { JwtMiddleware } from './common/middleware/jwt.middleware';
-
+import { AuthModule } from './modules/authentication/auth.module';
+import httpContext = require('express-http-context');
 
 @Module({
   imports: [
@@ -16,6 +16,7 @@ import { JwtMiddleware } from './common/middleware/jwt.middleware';
     MongooseModule.forRoot(process.env.DATABASE_URL), 
     UserModule,
     AdminModule,
+    AuthModule,
     UserModelHelperModule,
     DatabaseModule],
   controllers: [AppController],
@@ -24,9 +25,9 @@ import { JwtMiddleware } from './common/middleware/jwt.middleware';
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(JwtMiddleware)
+      .apply(httpContext.middleware)
       .forRoutes(
-        { path: 'user', method: RequestMethod.ALL },
+        { path: '*', method: RequestMethod.ALL },
       );
   }
 }

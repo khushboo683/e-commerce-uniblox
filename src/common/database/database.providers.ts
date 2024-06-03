@@ -1,9 +1,15 @@
 import mongoose, { Connection, ConnectOptions } from 'mongoose';
 import {
+    ADMIN_MODEL,
   DATABASE_CONNECTION,
  USER_MODEL,
+ PRODUCT_MODEL,
+ ORDER_MODEL
 } from "./database.constants";
 import { User, UserSchema } from './user.model';
+import { Admin, AdminSchema } from './admin.model';
+import { IProduct, ProductSchema } from './product.model';
+import { IOrder, OrderSchema } from './orders.model';
 
 
 export const databaseProviders=[
@@ -44,6 +50,48 @@ export const databaseProviders=[
             userModel.syncIndexes();
           }
           return userModel;
+        },
+        inject: [DATABASE_CONNECTION]
+      },
+      {
+        provide: ADMIN_MODEL,
+        useFactory: (connection: mongoose.Connection) => {
+          const adminModel = connection.model<Admin>(
+            "Admin",
+            AdminSchema,
+            "admin")
+          if (true) {
+            adminModel.syncIndexes();
+          }
+          return adminModel;
+        },
+        inject: [DATABASE_CONNECTION]
+      },
+      {
+        provide: PRODUCT_MODEL,
+        useFactory: (connection: mongoose.Connection) => {
+          const productModel = connection.model<IProduct>(
+            "Product",
+            ProductSchema,
+            "product")
+          if (true) {
+            productModel.syncIndexes();
+          }
+          return productModel;
+        },
+        inject: [DATABASE_CONNECTION]
+      },
+      {
+        provide: ORDER_MODEL,
+        useFactory: (connection: mongoose.Connection) => {
+          const orderModel = connection.model<IOrder>(
+            "Order",
+            OrderSchema,
+            "order")
+          if (true) {
+            orderModel.syncIndexes();
+          }
+          return orderModel;
         },
         inject: [DATABASE_CONNECTION]
       },

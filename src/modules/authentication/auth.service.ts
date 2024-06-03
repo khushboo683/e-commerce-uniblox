@@ -12,7 +12,7 @@ export class AuthService {
   ) {}
 
   async validateUser(mobile: string, password: string): Promise<any> {
-    const user = await this.usersService.getUserDetails(mobile);
+    const user = await this.usersService.findUserWithMobile(mobile);
     if (user && bcrypt.compareSync(password, user.password)) {
       const { password, ...result } = user;
       return result;
@@ -22,6 +22,12 @@ export class AuthService {
 
   async login(user: any) {
     const payload = { mobile: user.mobile, role: Roles.USER };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+  async adminLogin(admin: any) {
+    const payload = { mobile: admin.mobile, role: Roles.ADMIN };
     return {
       access_token: this.jwtService.sign(payload),
     };
