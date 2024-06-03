@@ -22,4 +22,12 @@ export class UserModelHelperService {
   async findUserWithMobile(mobile:string){
 return await this.userModel.findOne({mobile});
   }
+  async updateAfterOrder(order:any,mobile:string){
+    const updateBody=
+      { $push: { orders: order }, $set: {cart: {}} }
+    
+    return await this.userModel.findOneAndUpdate(
+      {mobile},updateBody
+    )
+  }
 }

@@ -3,3 +3,4 @@ export const USER_MODEL = "USER_MODEL";
 export const PRODUCT_MODEL = "PRODUCT_MODEL";
 export const ADMIN_MODEL = "ADMIN_MODEL";
 export const ORDER_MODEL = "ORDER_MODEL";
+export const DISCOUNT_COUPON_MODEL="DISCOUNT_COUPON_MODEL"

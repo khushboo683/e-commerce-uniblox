@@ -1,4 +1,4 @@
-import {Document, Schema, Types} from 'mongoose';
+import {Document, Schema} from 'mongoose';
 import { Roles } from '../constants/roles';
 import { IOrder, OrderSchema } from './orders.model';
 
@@ -31,11 +31,12 @@ interface ICart extends Document {
         count: Number, // Corrected to Number for count
       },
     ],
-    cartValue: Number,
+    cartValue:{ type:Number, default:0},
   }, {
     _id: false,
   });
 interface User extends Document{
+    user: {};
     name: string,
     email: string,
     mobile: string,

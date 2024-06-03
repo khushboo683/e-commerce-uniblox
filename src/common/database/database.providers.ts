@@ -4,12 +4,14 @@ import {
   DATABASE_CONNECTION,
  USER_MODEL,
  PRODUCT_MODEL,
- ORDER_MODEL
+ ORDER_MODEL,
+ DISCOUNT_COUPON_MODEL
 } from "./database.constants";
 import { User, UserSchema } from './user.model';
 import { Admin, AdminSchema } from './admin.model';
 import { IProduct, ProductSchema } from './product.model';
 import { IOrder, OrderSchema } from './orders.model';
+import { DiscountCouponSchema, IDiscountCoupon } from './discount-coupons.model';
 
 
 export const databaseProviders=[
@@ -92,6 +94,20 @@ export const databaseProviders=[
             orderModel.syncIndexes();
           }
           return orderModel;
+        },
+        inject: [DATABASE_CONNECTION]
+      },
+      {
+        provide: DISCOUNT_COUPON_MODEL,
+        useFactory: (connection: mongoose.Connection) => {
+          const discountCouponModel = connection.model<IDiscountCoupon>(
+            "DiscountCoupon",
+            DiscountCouponSchema,
+            "discount_coupon")
+          if (true) {
+            discountCouponModel.syncIndexes();
+          }
+          return discountCouponModel;
         },
         inject: [DATABASE_CONNECTION]
       },

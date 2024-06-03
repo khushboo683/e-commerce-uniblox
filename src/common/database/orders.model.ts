@@ -4,21 +4,21 @@ import { OrderStatus } from '../constants/order-status';
 
 interface IOrder extends Document{
   userId: string,
-  productList: IProduct[],
+  productList: any[],
   status: OrderStatus,
-  totalAmount:number
+  totalAmount:number,
+  discount?:number
 }
 const OrderSchema = new Schema({
    userId: String,
-   productList: {
-    type: [ProductSchema],
-  },
+   productList:Object,
    status:{
     type: String,
     enum: Object.values(OrderStatus),
 
    },
-   totalAmount: Number
+   totalAmount: Number,
+   discount:Number
     
   },{timestamps:true});
 

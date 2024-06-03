@@ -38,9 +38,9 @@ export class UserController {
         return await this.userService.updateCart(body)
     }
 
-    @Post('/order')
-    async order(){
-
+    @Post('/checkout')
+    async order(@Body() body:any){
+     return await this.userService.checkout(body);
     }
 
 }
