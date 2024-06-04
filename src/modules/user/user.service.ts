@@ -2,16 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { UserModelHelperService } from '../model-helper/user-model-helper/user-model-helper.service';
 import { Roles } from 'src/common/constants/roles';
 import { CartActions } from 'src/common/constants/cart-actions';
-import { User, ICart } from 'src/common/database/user.model';
+import { User } from 'src/common/database/user.model';
 import { ProductModelHelperService } from '../model-helper/product-model-helper/product-model-helper.service';
 import { IProduct } from 'src/common/database/product.model';
-import { isEmpty } from 'lodash';
 import { OrderModelHelperService } from '../model-helper/order-model-helper/order-model-helper.service';
 import { OrderStatus } from 'src/common/constants/order-status';
-import { IOrder } from 'src/common/database/orders.model';
 import { DiscountCouponModelHelperService } from '../model-helper/discount-coupon-model-helper/discount-coupon-model-helper.service';
 import { DiscountCouponStatus } from 'src/common/constants/discount-coupon-status';
-const crypto = require('crypto');
+import { IDiscountCoupon } from 'src/common/database/discount-coupons.model';
+
 @Injectable()
 export class UserService {
     constructor(
@@ -25,17 +24,18 @@ export class UserService {
         input={...input,role:Roles.USER}
        return await this.userModelHelper.createUser(input);
     }
-   async getUserDetails(mobile:string){
+   async getUserDetails(body:any){
+    const {mobile}=body;
      return  this.userModelHelper.findUserWithMobile(mobile)
    }
    async updateCart(input: any) {
     const { action, productId, mobile } = input;
 
     // Fetch the user
-    const user= await this.getUserDetails(mobile);
-
+    const user= await this.getUserDetails(input);
+   console.log("user",user)
     if (!user) {
-      throw new Error('User not found');
+        console.log("user",user)
     }
 
     const itemIndex = user.cart?.productDetails.findIndex((item) => item.productId === productId);
@@ -110,36 +110,40 @@ export class UserService {
   async updateUserAfterOrder(order:any, mobile:string){
     await this.userModelHelper.updateAfterOrder(order, mobile)
   }
-generateRandomString = (length) => {
-    return crypto.randomBytes(length).toString('hex').slice(0, length);
-};
-async generateCoupon(mobile:string, noOfOrders:number){
-const code = this.generateRandomString(6);
-const couponObj:Record<string,any>={
-   code,
-   userId:mobile,
-   orderFrequency:5,
-   status:DiscountCouponStatus.ACTIVE,
-   expireAt:noOfOrders+5+1
-}
-await this.discountCouponModelHelper.createDiscountCoupon(couponObj)
-}
-  async checkout(body:any){
+
+  async fetchCoupon(body:any){
     const {mobile} = body
-    const user:User = await this.getUserDetails(mobile)
+    const query={
+      userId:mobile,
+      status:DiscountCouponStatus.ACTIVE
+  }
+    return await this.discountCouponModelHelper.fetchActiveCoupon(query)
+  }
+  async checkout(body:any){
+    const {mobile, couponCode} = body
+    const user:User = await this.getUserDetails(body)
     console.log("user cart", user.cart)
     if(user.cart.productDetails.length<=0){
         throw new Error('Cart is empty')
     }
     else {
         let orderObj:Record<string,any>
+        let couponFromDb:IDiscountCoupon;
         let finalTotalAmt=user?.cart?.cartValue;
         if((user.orders.length+1)%5==0){
-            const coupon=await this.generateCoupon(mobile, user.orders.length);
-         orderObj={
-            discount:10,
-          }
-         finalTotalAmt-=(0.1*user?.cart?.cartValue)
+            await this.discountCouponModelHelper.deactivateExpiredCopons(user.orders.length,mobile);
+            if(couponCode){
+              const query={
+                userId:mobile,
+                code:couponCode
+              }
+              couponFromDb=await this.discountCouponModelHelper.fetchActiveCoupon(query)
+              if(couponFromDb?.code!==couponCode){
+                throw new Error("Coupon applied is not valid")
+              }
+              finalTotalAmt-=(((couponFromDb?.discountPercent||100)/100)*user?.cart?.cartValue)
+              await this.discountCouponModelHelper.markDiscountCouponUsed(mobile)
+            }
         }
         const productList:any=[];
          user?.cart?.productDetails?.forEach((p) => {
@@ -149,7 +153,8 @@ await this.discountCouponModelHelper.createDiscountCoupon(couponObj)
             userId: user?.mobile,
             productList,
             status: OrderStatus.ORDERED,
-            totalAmount:finalTotalAmt
+            totalAmount:finalTotalAmt,
+            discount: couponFromDb?.discountPercent??0
         }
        console.log("orderObj", orderObj)
     const order=await this.orderModelHelper.createOrder(orderObj)

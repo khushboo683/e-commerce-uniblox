@@ -1,16 +1,26 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import {Document, Schema} from 'mongoose';
+import { DiscountCouponStatus } from '../constants/discount-coupon-status';
 
-interface IDiscountCoupon extends Document{
-   code:string,
+export interface IDiscountCoupon extends Document{
+   userId:string
+   code:string
    discountPercent:number
-   isUsed?:boolean
+   status:DiscountCouponStatus
+   expireAtOrder: number
 }
-const DiscountCouponSchema= new Schema({
+export const DiscountCouponSchema= new Schema({
+    userId:String,
     code:String,
     discountPercent:Number,
-    isUsed:Boolean
+    status:{
+        type:String,
+        enum: Object.values(DiscountCouponStatus)
+    },
+    expireAtOrder:Number
 })
-export {
-    IDiscountCoupon,
-    DiscountCouponSchema
-}
+// export {
+//     IDiscountCoupon,
+//     DiscountCouponSchema
+// }
+

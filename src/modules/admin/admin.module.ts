@@ -5,10 +5,11 @@ import { UserModelHelperModule } from '../model-helper/user-model-helper/user-mo
 import { AuthModule } from '../authentication/auth.module';
 import { OrderModelHelper } from '../model-helper/order-model-helper/order-model-helper.module';
 import { ProductModelHelper } from '../model-helper/product-model-helper/product-model-helper.module';
+import { DiscountCouponHelperModule } from '../model-helper/discount-coupon-model-helper/discount-coupon-model-helper.module';
 
 @Module({
   controllers: [AdminController],
   providers: [AdminService],
-  imports:[UserModelHelperModule, AuthModule, OrderModelHelper, ProductModelHelper]
+  imports:[UserModelHelperModule, AuthModule, OrderModelHelper, ProductModelHelper, DiscountCouponHelperModule]
 })
 export class AdminModule {}

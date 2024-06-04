@@ -5,6 +5,7 @@ import { Role } from 'src/common/guard/roles.decorator';
 import { AuthService } from '../authentication/auth.service';
 import { UserAuthGuard } from 'src/common/guard/user-auth.guard';
 import httpContext = require("express-http-context");
+import { OrderCheckoutDto } from './users.dto';
 
 @Role(Roles.USER)
 @Controller('user')
@@ -22,10 +23,10 @@ export class UserController {
         }
         return { message: 'Invalid credentials' };
     }
-    @UseGuards(UserAuthGuard)
+    // @UseGuards(UserAuthGuard)
     @Get('/me')
-    async getAllUsers(@Param('mobile') mobile:string){
-        const result = await this.userService.getUserDetails(mobile);
+    async getAllUsers(@Body() body:any){
+        const result = await this.userService.getUserDetails(body);
         return result;
     }
     @Post('/register')
@@ -37,9 +38,14 @@ export class UserController {
     async updateCart(@Body() body:any){
         return await this.userService.updateCart(body)
     }
+    
+    @Get('/coupon')
+    async fetchActiveCoupon(@Body() body:any){
+      return await this.userService.fetchCoupon(body)
+    }
 
     @Post('/checkout')
-    async order(@Body() body:any){
+    async order(@Body() body:OrderCheckoutDto){
      return await this.userService.checkout(body);
     }
 

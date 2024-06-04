@@ -1,5 +1,4 @@
 import {Document, Schema} from 'mongoose';
-import { IProduct, ProductSchema } from './product.model';
 import { OrderStatus } from '../constants/order-status';
 
 interface IOrder extends Document{

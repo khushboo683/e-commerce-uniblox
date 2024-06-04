@@ -3,7 +3,7 @@ import { Roles } from 'src/common/constants/roles';
 import { Role } from 'src/common/guard/roles.decorator';
 import { AdminService } from './admin.service';
 import { AuthService } from '../authentication/auth.service';
-@Role(Roles.ADMIN)
+// @Role(Roles.ADMIN)
 @Controller('admin')
 
 export class AdminController {
@@ -33,5 +33,9 @@ export class AdminController {
     @Post('/add-product')
     async addProduct(@Body() body:any){
         return await this.adminService.addNewProduct(body)
+    }
+    @Post('/discount-coupon')
+    async generateDiscountCoupon(@Body() body:any){
+        return await this.adminService.generateCoupon(body)
     }
 }
