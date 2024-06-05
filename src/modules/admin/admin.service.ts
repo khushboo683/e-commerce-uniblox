@@ -18,25 +18,6 @@ export class AdminService {
         private productModelHelper:ProductModelHelperService,
         private discountCouponModelHelper: DiscountCouponModelHelperService
     ){}
-    async getUsers(){
-        return await this.userModelHelper.getUsers();
-    }
-
-    async getUserDetails(){
-
-    }
-    async getOrdersList(){
-     return await this.orderModelHelper.getOrders();
-    }
-    async cancelOrder(id:string){
-        const updateObj={
-            status:OrderStatus.CANCELLED
-        }
-     return await this.orderModelHelper.updateOrderDetail(id,updateObj);
-    }
-    async addNewProduct(body:any){
-       return await this.productModelHelper.createProduct(body)
-    }
     generateRandomString = (length: number) => {
         return crypto.randomBytes(length).toString('hex').slice(0, length);
     };
@@ -56,5 +37,9 @@ export class AdminService {
        expireAtOrder:noOfOrders+5+1
     };
     return await this.discountCouponModelHelper.createDiscountCoupon(couponObj)
+    }
+
+    async getUserStats(body:any){
+        
     }
 }

@@ -10,6 +10,8 @@ import { OrderStatus } from 'src/common/constants/order-status';
 import { DiscountCouponModelHelperService } from '../model-helper/discount-coupon-model-helper/discount-coupon-model-helper.service';
 import { DiscountCouponStatus } from 'src/common/constants/discount-coupon-status';
 import { IDiscountCoupon } from 'src/common/database/discount-coupons.model';
+import { OrderCheckoutDto, UpdateCartDto, UserDto } from './users.dto';
+import { IOrder } from 'src/common/database/orders.model';
 
 @Injectable()
 export class UserService {
@@ -24,15 +26,15 @@ export class UserService {
         input={...input,role:Roles.USER}
        return await this.userModelHelper.createUser(input);
     }
-   async getUserDetails(body:any){
+   async getUserDetails(body:UserDto){
     const {mobile}=body;
      return  this.userModelHelper.findUserWithMobile(mobile)
    }
-   async updateCart(input: any) {
+   async updateCart(input: UpdateCartDto) {
     const { action, productId, mobile } = input;
 
     // Fetch the user
-    const user= await this.getUserDetails(input);
+    const user= await this.getUserDetails({mobile});
    console.log("user",user)
     if (!user) {
         console.log("user",user)
@@ -102,48 +104,49 @@ export class UserService {
       default:
         throw new Error('Invalid cart action');
     }
-
-    // Save the updated user
-    await user.save();
-    return user.cart;
+    user.save()
+    return user;
   }
-  async updateUserAfterOrder(order:any, mobile:string){
-    await this.userModelHelper.updateAfterOrder(order, mobile)
+  async updateUserAfterOrder(order:IOrder){
+   return await this.userModelHelper.updateAfterOrder(order)
   }
 
-  async fetchCoupon(body:any){
+  async fetchCoupon(body:UserDto){
     const {mobile} = body
     const query={
       userId:mobile,
       status:DiscountCouponStatus.ACTIVE
   }
+    const user = await this.getUserDetails(body)
+    if((user?.orders.length+1)%5==0)
     return await this.discountCouponModelHelper.fetchActiveCoupon(query)
+  else throw new Error("User is not elegible for a coupon")
   }
-  async checkout(body:any){
-    const {mobile, couponCode} = body
+  async checkout(body:OrderCheckoutDto){
+    const {mobile} = body
     const user:User = await this.getUserDetails(body)
     console.log("user cart", user.cart)
     if(user.cart.productDetails.length<=0){
         throw new Error('Cart is empty')
     }
     else {
-        let orderObj:Record<string,any>
+        let orderObj:IOrder
         let couponFromDb:IDiscountCoupon;
         let finalTotalAmt=user?.cart?.cartValue;
         if((user.orders.length+1)%5==0){
             await this.discountCouponModelHelper.deactivateExpiredCopons(user.orders.length,mobile);
-            if(couponCode){
-              const query={
-                userId:mobile,
-                code:couponCode
-              }
-              couponFromDb=await this.discountCouponModelHelper.fetchActiveCoupon(query)
-              if(couponFromDb?.code!==couponCode){
-                throw new Error("Coupon applied is not valid")
-              }
-              finalTotalAmt-=(((couponFromDb?.discountPercent||100)/100)*user?.cart?.cartValue)
-              await this.discountCouponModelHelper.markDiscountCouponUsed(mobile)
-            }
+        }
+        if(body?.couponCode){
+          const query={
+            userId:mobile,
+            code:body?.couponCode
+          }
+          couponFromDb=await this.discountCouponModelHelper.fetchActiveCoupon(query)
+          if(couponFromDb?.code!==body?.couponCode){
+            throw new Error("Coupon applied is not valid")
+          }
+          finalTotalAmt-=(((couponFromDb?.discountPercent||100)/100)*user?.cart?.cartValue)
+          await this.discountCouponModelHelper.markDiscountCouponUsed(mobile)
         }
         const productList:any=[];
          user?.cart?.productDetails?.forEach((p) => {
@@ -159,7 +162,7 @@ export class UserService {
        console.log("orderObj", orderObj)
     const order=await this.orderModelHelper.createOrder(orderObj)
     console.log("order",order)
-    return await this.updateUserAfterOrder(orderObj, mobile);
+    return await this.updateUserAfterOrder(orderObj);
     }
   }
 }

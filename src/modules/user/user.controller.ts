@@ -4,8 +4,7 @@ import { Roles } from 'src/common/constants/roles';
 import { Role } from 'src/common/guard/roles.decorator';
 import { AuthService } from '../authentication/auth.service';
 import { UserAuthGuard } from 'src/common/guard/user-auth.guard';
-import httpContext = require("express-http-context");
-import { OrderCheckoutDto } from './users.dto';
+import {OrderCheckoutDto, UpdateCartDto, UserDto, UserLoginDto, UserRegisterDto } from './users.dto';
 
 @Role(Roles.USER)
 @Controller('user')
@@ -16,37 +15,69 @@ export class UserController {
     ){}
     @UseGuards(UserAuthGuard)
     @Post('/login')
-    async userLogin(@Body() body:any){
-        const user = await this.authService.validateUser(body.mobile, body.password);
-        if (user) {
-          return this.authService.login(user);
+    async userLogin(@Body() body:UserLoginDto){
+        try{
+            const user = await this.authService.login(body);
+        }catch(err){
+           console.log("Error while logging in:", err)
+           throw err
         }
-        return { message: 'Invalid credentials' };
+ 
     }
     // @UseGuards(UserAuthGuard)
     @Get('/me')
-    async getAllUsers(@Body() body:any){
-        const result = await this.userService.getUserDetails(body);
-        return result;
+    async getAllUsers(@Body() body:UserDto){
+        try{  
+            const result = await this.userService.getUserDetails(body);
+            return result;
+
+        }catch(err){
+            console.log("Error fetching user details:",err)
+            throw err
+        }
+      
     }
     @Post('/register')
-    async createUser(@Body() body:any){
-        return await this.authService.register(body);
+    async createUser(@Body() body:UserRegisterDto){
+        try{
+            return await this.authService.register(body);
+        }catch(err){
+            console.log("Something went wrong while registering!", err)
+            throw err
+        }
+     
     }
 
     @Patch('/cart')
-    async updateCart(@Body() body:any){
-        return await this.userService.updateCart(body)
+    async updateCart(@Body() body:UpdateCartDto){
+        try{
+            return await this.userService.updateCart(body)
+        }catch(err){
+            console.log("Error while updating the cart:", err)
+            throw err
+        }
+        
     }
     
     @Get('/coupon')
-    async fetchActiveCoupon(@Body() body:any){
-      return await this.userService.fetchCoupon(body)
+    async fetchActiveCoupon(@Body() body:UserDto){
+        try{
+            return await this.userService.fetchCoupon(body)
+        }catch(err){
+         console.log("Error while fetching coupon:", err)
+         throw err
+        }
     }
 
     @Post('/checkout')
     async order(@Body() body:OrderCheckoutDto){
-     return await this.userService.checkout(body);
+        try{
+            return await this.userService.checkout(body);
+        }catch(err){
+            console.log("Error while checking out the order:", err)
+            throw err
+        }
+     
     }
 
 }

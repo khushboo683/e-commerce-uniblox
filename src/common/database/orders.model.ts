@@ -1,7 +1,7 @@
 import {Document, Schema} from 'mongoose';
 import { OrderStatus } from '../constants/order-status';
 
-interface IOrder extends Document{
+interface IOrder{
   userId: string,
   productList: any[],
   status: OrderStatus,

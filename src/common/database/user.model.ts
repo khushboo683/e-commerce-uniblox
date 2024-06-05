@@ -8,13 +8,13 @@ interface IAddress extends Document{
     state:string,
     pincode:string
 }
-export const AddressSchema= new Schema({
+const AddressSchema= new Schema({
     addressLine1: String,
     city:String,
     state:String,
     pincode:String
 })
-interface ICart extends Document {
+interface ICart {
     productDetails: {
       productId?: string;
       productName: string;
@@ -23,7 +23,7 @@ interface ICart extends Document {
     cartValue: number;
   }
   
-  export const CartSchema = new Schema({
+  const CartSchema = new Schema({
     productDetails: [
       {
         productId: String,
@@ -69,5 +69,7 @@ const UserSchema = new Schema({
 
   export {
     User,
-    UserSchema, ICart
+    UserSchema,
+    ICart,
+    CartSchema,
 };

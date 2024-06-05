@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserModelHelperService } from '../model-helper/user-model-helper/user-model-helper.service';
 import * as bcrypt from 'bcrypt';
 import { Roles } from 'src/common/constants/roles';
+import { UserLoginDto, UserRegisterDto } from '../user/users.dto';
 
 @Injectable()
 export class AuthService {
@@ -11,31 +12,27 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(mobile: string, password: string): Promise<any> {
+  async login(body: UserLoginDto) { 
+    const{mobile} = body
     const user = await this.usersService.findUserWithMobile(mobile);
-    if (user && bcrypt.compareSync(password, user.password)) {
-      const { password, ...result } = user;
-      return result;
+    
+    if (!user) {
+      throw new Error('User not registered');
     }
-    return null;
-  }
 
-  async login(user: any) {
-    const payload = { mobile: user.mobile, role: Roles.USER };
+    const isPasswordValid = await bcrypt.compare(body.password, user.password);
+    
+    if (!isPasswordValid) {
+      throw new Error('Invalid credentials');
+    }
+
     return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }
-  async adminLogin(admin: any) {
-    const payload = { mobile: admin.mobile, role: Roles.ADMIN };
-    return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign({ mobile,role:user.role}),
     };
   }
 
-  async register(user: any) {
+  async register(user: UserRegisterDto) {
     const hashedPassword = bcrypt.hashSync(user.password, 10);
-    console.log("hashed paswword", hashedPassword)
     return this.usersService.createUser({ ...user, password: hashedPassword });
   }
 }
