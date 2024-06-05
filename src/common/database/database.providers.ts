@@ -20,7 +20,7 @@ export const databaseProviders = [
   {
     provide: DATABASE_CONNECTION,
     useFactory: (): Connection => {
-      // eslint-disable-next-line no-console
+
       console.log(`DB URL ${process.env.DATABASE_URL}`);
       const connection = mongoose.createConnection(process.env.DATABASE_URL, {
         useNewUrlParser: true,
@@ -28,14 +28,13 @@ export const databaseProviders = [
       } as ConnectOptions);
 
       connection.on('connected', () => {
-        // eslint-disable-next-line no-console
+  
         console.log('DB Connected');
       });
 
       connection.on('error', (err) => {
-        // eslint-disable-next-line no-console
+
         console.log('Failed to connect DB');
-        // eslint-disable-next-line no-console
         console.error(JSON.stringify(err));
       });
 

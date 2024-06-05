@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import httpContext = require('express-http-context');
 import * as jwt from 'jsonwebtoken';
 
@@ -11,24 +11,19 @@ export class UserAuthGuard implements CanActivate {
     let tokenPayload: any;
     try {
       const token = req.headers['authorization']?.split(' ')[1];
-      console.log("token", token);
-      if (!token) {
-        throw new Error("Token missing");
-      }
+      if (!token)
+           throw new ForbiddenException('Forbidden')
       httpContext.set("token", token);
       
       tokenPayload = jwt.decode(token);
 
-      if (!tokenPayload) {
-        throw new Error("Payload missing");
-      }
+      if (!tokenPayload) 
+        throw new ForbiddenException('Forbidden')
 
-      // Set the mobile value from token payload
       if (tokenPayload.hasOwnProperty("mobile")) { 
         httpContext.set("mobile", tokenPayload.mobile);
       } 
 
-      console.log("token payload", tokenPayload);
       return isValid;
     } catch (e) {
       isValid = false;

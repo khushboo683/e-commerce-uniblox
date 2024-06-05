@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { UserModelHelperService } from '../model-helper/user-model-helper/user-model-helper.service';
 import { Roles } from 'src/common/constants/roles';
 import { CartActions } from 'src/common/constants/cart-actions';
@@ -35,9 +35,8 @@ export class UserService {
 
     // Fetch the user
     const user= await this.getUserDetails({mobile});
-   console.log("user",user)
     if (!user) {
-        console.log("user",user)
+        throw new NotFoundException("User does not exist")
     }
     let itemIndex=-1
     if(user.cart )
@@ -48,10 +47,10 @@ export class UserService {
       case CartActions.ADD:
    
         if(!product){
-            throw new Error('Product does not exist')
+            throw new BadRequestException('Product does not exist')
         }
         if(product?.inStock==false){
-            throw new Error('Product sold out')
+            throw new BadRequestException('Product sold out')
         }else{
             const prodObj:ICart={
                 productList:[{
@@ -84,7 +83,7 @@ export class UserService {
           user.cart.cartValue-=amount
           user.cart.productList.splice(itemIndex, 1);
         } else {
-          throw new Error('Product not found in cart');
+          throw new BadRequestException('Product not found in cart');
         }
         break;
 
@@ -99,12 +98,12 @@ export class UserService {
           }
           user.cart.cartValue-=product?.price
         } else {
-          throw new Error('Product not found in cart');
+          throw new BadRequestException('Product not found in cart');
         }
         break;
 
       default:
-        throw new Error('Invalid cart action');
+        throw new BadRequestException('Invalid cart action');
     }
     await this.userModelHelper.updateCart(user.cart,mobile)
     return user;
@@ -122,14 +121,13 @@ export class UserService {
     const user = await this.getUserDetails(body)
     if((user?.orders.length+1)%5==0)
     return await this.discountCouponModelHelper.fetchCoupon(query)
-  else throw new Error("User is not elegible for a coupon")
+  else throw new BadRequestException("User is not elegible for a coupon")
   }
   async checkout(body:OrderCheckoutDto){
     const {mobile} = body
     const user:User = await this.getUserDetails(body)
-    console.log("user cart", user.cart)
     if(user.cart.productList.length<=0){
-        throw new Error('Cart is empty')
+        throw new BadRequestException('Cart is empty')
     }
     else {
         let orderObj:IOrder
@@ -145,7 +143,7 @@ export class UserService {
           }
           couponFromDb=await this.discountCouponModelHelper.fetchCoupon(query)
           if(couponFromDb?.code!==body?.couponCode){
-            throw new Error("Coupon applied is not valid")
+            throw new BadRequestException("Coupon applied is not valid")
           }
           finalTotalAmt-=(((couponFromDb?.discountPercent||100)/100)*user?.cart?.cartValue)
           await this.discountCouponModelHelper.markDiscountCouponUsed(mobile)
@@ -162,9 +160,7 @@ export class UserService {
             discount: couponFromDb?.discountPercent??0,
             totalAmountAfterDiscount:finalTotalAmt
         }
-       console.log("orderObj", orderObj)
     const order=await this.orderModelHelper.createOrder(orderObj)
-    console.log("order",order)
     return await this.updateUserAfterOrder(orderObj);
     }
   }

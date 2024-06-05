@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserModelHelperService } from '../model-helper/user-model-helper/user-model-helper.service';
 import { OrderModelHelperService } from '../model-helper/order-model-helper/order-model-helper.service';
 import { OrderStatus } from 'src/common/constants/order-status';
@@ -27,7 +27,7 @@ export class AdminService {
     const user = await this.userModelHelper.findUserWithMobile(mobile) 
     let noOfOrders=user?.orders?.length || 0;
     if((noOfOrders+1)%5){
-        throw new Error('User is not eligible for discount coupon')
+        throw new BadRequestException('User is not eligible for discount coupon')
     }
     const code = this.generateRandomString(6);
     const couponObj: Partial<IDiscountCoupon> = {

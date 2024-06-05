@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, BadRequestException, ForbiddenException } from '@nestjs/common';
 import httpContext = require('express-http-context')
 import * as jwt from 'jsonwebtoken';
 import _ = require("lodash");
@@ -13,20 +13,14 @@ export class AdminAuthGuard implements CanActivate {
     let tokenPayload: any;
     try {
       const token = req.headers['authorization']?.split(' ')[1];
-      console.log("token", token)
-      if (_.isEmpty(token)) {
-      throw {
-        error:"token missing"
-      }
-      }
+      if (_.isEmpty(token)) 
+      throw new ForbiddenException('Forbidden')
       httpContext.set("token", token);
       
       tokenPayload = jwt.decode(token);
 
       if (!tokenPayload) {
-      throw {
-        error:"Payload missing"
-      }
+        throw new ForbiddenException('Forbidden')
       }
       httpContext.set("tokenPayload", tokenPayload);
 
@@ -34,12 +28,9 @@ export class AdminAuthGuard implements CanActivate {
         httpContext.set("mobile", tokenPayload.mobile);
       } 
       if (!tokenPayload.hasOwnProperty('role') || tokenPayload.role !== Roles.ADMIN) {
-        throw {
-          error: 'Invalid role',
-        };
+        throw new ForbiddenException('Forbidden')
       }
       httpContext.set('role', tokenPayload.role);
-      console.log("token payload", tokenPayload)
       return isValid;
     } catch (e) {
       isValid = false;
