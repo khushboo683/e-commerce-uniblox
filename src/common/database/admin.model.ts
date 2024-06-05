@@ -1,6 +1,6 @@
 import {Document, Schema} from 'mongoose';
 import { Roles } from '../constants/roles';
-interface Admin extends Document{
+interface Admin {
     name: string,
     email: string,
     mobile: string,

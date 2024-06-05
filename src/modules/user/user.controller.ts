@@ -1,31 +1,28 @@
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { Roles } from 'src/common/constants/roles';
-import { Role } from 'src/common/guard/roles.decorator';
 import { AuthService } from '../authentication/auth.service';
 import { UserAuthGuard } from 'src/common/guard/user-auth.guard';
 import {OrderCheckoutDto, UpdateCartDto, UserDto, UserLoginDto, UserRegisterDto } from './users.dto';
 
-@Role(Roles.USER)
 @Controller('user')
 export class UserController {
     constructor(
         private userService: UserService,
         private authService: AuthService
     ){}
-    @UseGuards(UserAuthGuard)
+
     @Post('/login')
     async userLogin(@Body() body:UserLoginDto){
         try{
-            const user = await this.authService.login(body);
+            return await this.authService.login(body);
         }catch(err){
            console.log("Error while logging in:", err)
            throw err
         }
  
     }
-    // @UseGuards(UserAuthGuard)
     @Get('/me')
+    @UseGuards(UserAuthGuard)
     async getAllUsers(@Body() body:UserDto){
         try{  
             const result = await this.userService.getUserDetails(body);
@@ -49,6 +46,7 @@ export class UserController {
     }
 
     @Patch('/cart')
+    @UseGuards(UserAuthGuard)
     async updateCart(@Body() body:UpdateCartDto){
         try{
             return await this.userService.updateCart(body)
@@ -60,6 +58,7 @@ export class UserController {
     }
     
     @Get('/coupon')
+    @UseGuards(UserAuthGuard)
     async fetchActiveCoupon(@Body() body:UserDto){
         try{
             return await this.userService.fetchCoupon(body)
@@ -70,6 +69,7 @@ export class UserController {
     }
 
     @Post('/checkout')
+    @UseGuards(UserAuthGuard)
     async order(@Body() body:OrderCheckoutDto){
         try{
             return await this.userService.checkout(body);

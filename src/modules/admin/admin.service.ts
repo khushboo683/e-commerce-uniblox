@@ -10,13 +10,15 @@ import { DiscountCouponStatus } from 'src/common/constants/discount-coupon-statu
 import { User } from 'src/common/database/user.model';
 import { IDiscountCoupon } from 'src/common/database/discount-coupons.model';
 import DocumentDefinition from "mongoose"
-import { UserDto } from '../user/users.dto';
+import { UserDto, UserRegisterDto } from '../user/users.dto';
+import { AdminModelHelperService } from '../model-helper/admin-model-helper/admin-model-helper.service';
 @Injectable()
 export class AdminService {
     constructor(
         private userModelHelper: UserModelHelperService,
-        private discountCouponModelHelper: DiscountCouponModelHelperService
+        private discountCouponModelHelper: DiscountCouponModelHelperService,
     ){}
+
     generateRandomString = (length: number) => {
         return crypto.randomBytes(length).toString('hex').slice(0, length);
     };
@@ -54,11 +56,3 @@ export class AdminService {
      }
     }
 }
-// userstats { totalItems: 9, totalAmount: 21500, totalDiscountSum: 500 }
-// discountstats [
-//   {
-//     _id: new ObjectId('665f729c4d845debd16b0080'),
-//     code: 'cc8c2a',
-//     status: 'USED'
-//   }
-// ]

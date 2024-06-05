@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { USER_MODEL } from 'src/common/database/database.constants';
 import { IOrder } from 'src/common/database/orders.model';
-import { User } from 'src/common/database/user.model';
+import { ICart, User } from 'src/common/database/user.model';
 
 @Injectable()
 export class UserModelHelperService {
@@ -55,5 +55,12 @@ export class UserModelHelperService {
 
     const { totalItemsPurchased, totalAmount, totalDiscountSum } = result[0];
     return { totalItemsPurchased, totalAmount , totalDiscountSum};
+  }
+
+  async updateCart(cart:ICart,mobile:string){
+    return await this.userModel.updateOne(
+      { mobile },
+      { $set: { cart} }
+  );
   }
 }

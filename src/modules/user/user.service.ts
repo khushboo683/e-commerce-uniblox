@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserModelHelperService } from '../model-helper/user-model-helper/user-model-helper.service';
 import { Roles } from 'src/common/constants/roles';
 import { CartActions } from 'src/common/constants/cart-actions';
-import { User } from 'src/common/database/user.model';
+import { ICart, User } from 'src/common/database/user.model';
 import { ProductModelHelperService } from '../model-helper/product-model-helper/product-model-helper.service';
 import { IProduct } from 'src/common/database/product.model';
 import { OrderModelHelperService } from '../model-helper/order-model-helper/order-model-helper.service';
@@ -39,8 +39,9 @@ export class UserService {
     if (!user) {
         console.log("user",user)
     }
-
-    const itemIndex = user.cart?.productDetails.findIndex((item) => item.productId === productId);
+    let itemIndex=-1
+    if(user.cart )
+     itemIndex=user?.cart?.productList?.findIndex((item) => item.productId === productId);
     const product:IProduct = await this.productModelHelper.getProductDetails(productId)
 
     switch (action) {
@@ -52,25 +53,26 @@ export class UserService {
         if(product?.inStock==false){
             throw new Error('Product sold out')
         }else{
-            const prodObj:any={
-                productDetails:{
+            const prodObj:ICart={
+                productList:[{
                     productId:product?._id,
                     productName: product?.name,
                     count:1
-                } ,
+                } ],
                
                 cartValue:Number(product?.price),
              
             }
             if (itemIndex > -1) {
                 // If the item already exists, increment the count
-                user.cart.productDetails[itemIndex].count += 1;
+                user.cart.productList[itemIndex].count += 1;
        
               } else {
                 // If the item does not exist, add it with count 1
-                user.cart.productDetails.push(prodObj.productDetails);
+                user.cart.productList.push(...prodObj.productList);
               }
               user.cart.cartValue+=product?.price;
+      
         }
        
         break;
@@ -78,9 +80,9 @@ export class UserService {
       case CartActions.REMOVE:
         if (itemIndex > -1) {
           // If the item exists, remove it
-          const amount=user.cart.productDetails[itemIndex].count*product?.price
+          const amount=user.cart.productList[itemIndex].count*product?.price
           user.cart.cartValue-=amount
-          user.cart.productDetails.splice(itemIndex, 1);
+          user.cart.productList.splice(itemIndex, 1);
         } else {
           throw new Error('Product not found in cart');
         }
@@ -89,11 +91,11 @@ export class UserService {
       case CartActions.DECREASE:
         if (itemIndex > -1) {
           // If the item exists and count is more than 1, decrement the count
-          if (user.cart.productDetails[itemIndex].count > 1) {
-            user.cart.productDetails[itemIndex].count -= 1;
+          if (user.cart.productList[itemIndex].count > 1) {
+            user.cart.productList[itemIndex].count -= 1;
           } else {
             // If the count is 1, remove the item
-            user.cart.productDetails.splice(itemIndex, 1);
+            user.cart.productList.splice(itemIndex, 1);
           }
           user.cart.cartValue-=product?.price
         } else {
@@ -104,7 +106,7 @@ export class UserService {
       default:
         throw new Error('Invalid cart action');
     }
-    user.save()
+    await this.userModelHelper.updateCart(user.cart,mobile)
     return user;
   }
   async updateUserAfterOrder(order:IOrder){
@@ -126,7 +128,7 @@ export class UserService {
     const {mobile} = body
     const user:User = await this.getUserDetails(body)
     console.log("user cart", user.cart)
-    if(user.cart.productDetails.length<=0){
+    if(user.cart.productList.length<=0){
         throw new Error('Cart is empty')
     }
     else {
@@ -148,8 +150,8 @@ export class UserService {
           finalTotalAmt-=(((couponFromDb?.discountPercent||100)/100)*user?.cart?.cartValue)
           await this.discountCouponModelHelper.markDiscountCouponUsed(mobile)
         }
-        const productList:any=[];
-         user?.cart?.productDetails?.forEach((p) => {
+        const productList:Record<string,any>[]=[];
+         user?.cart?.productList?.forEach((p) => {
             productList.push(p);
         });
         orderObj={

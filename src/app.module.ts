@@ -9,6 +9,7 @@ import { UserModelHelperModule } from './modules/model-helper/user-model-helper/
 import { DatabaseModule } from './common/database/database.module';
 import { AuthModule } from './modules/authentication/auth.module';
 import httpContext = require('express-http-context');
+import { AdminModelHelperModule } from './modules/model-helper/admin-model-helper/admin-helper-model.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import httpContext = require('express-http-context');
     AdminModule,
     AuthModule,
     UserModelHelperModule,
+    AdminModelHelperModule,
     DatabaseModule],
   controllers: [AppController],
   providers: [AppService],

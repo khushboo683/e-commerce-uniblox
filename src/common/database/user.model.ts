@@ -1,6 +1,7 @@
 import {Document, Schema} from 'mongoose';
 import { Roles } from '../constants/roles';
 import { IOrder, OrderSchema } from './orders.model';
+import { IProductList } from 'src/modules/user/users.interface';
 
 interface IAddress extends Document{
     addressLine1: string,
@@ -15,20 +16,16 @@ const AddressSchema= new Schema({
     pincode:String
 })
 interface ICart {
-    productDetails: {
-      productId?: string;
-      productName: string;
-      count: number;
-    }[];
+    productList:IProductList[];
     cartValue: number;
   }
   
   const CartSchema = new Schema({
-    productDetails: [
+    productList: [
       {
         productId: String,
         productName: String,
-        count: Number, // Corrected to Number for count
+        count: Number, 
       },
     ],
     cartValue:{ type:Number, default:0},
@@ -66,7 +63,7 @@ const UserSchema = new Schema({
     }
     
   },{timestamps:true});
-
+  UserSchema.index({ "mobile": 1 });
   export {
     User,
     UserSchema,

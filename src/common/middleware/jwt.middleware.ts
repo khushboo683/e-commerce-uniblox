@@ -1,6 +1,5 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {

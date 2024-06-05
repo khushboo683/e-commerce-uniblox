@@ -11,16 +11,14 @@ export class UserLoginDto extends UserDto{
     @IsString()
     password: string
 }
-export class UserRegisterDto extends UserDto{
+export class UserRegisterDto extends UserLoginDto{
 
     @IsString()
     name: string
 
     @IsString()
-    email:string
-
-    @IsString()
-    password:string
+    @IsOptional()
+    email?:string
 
     @IsEnum(Roles)
     role:Roles

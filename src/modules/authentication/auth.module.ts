@@ -4,6 +4,7 @@ import { UserModelHelperModule } from "../model-helper/user-model-helper/user-mo
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule} from "@nestjs/config";
 import { JwtMiddleware } from "src/common/middleware/jwt.middleware";
+import { AdminModelHelperModule } from "../model-helper/admin-model-helper/admin-helper-model.module";
 
 @Module({
   providers:[AuthService, JwtMiddleware],
@@ -17,6 +18,7 @@ import { JwtMiddleware } from "src/common/middleware/jwt.middleware";
         }),
         inject: [],
       }),
+      AdminModelHelperModule
   ]
 })
 export class AuthModule{}

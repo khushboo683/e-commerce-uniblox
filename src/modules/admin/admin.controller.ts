@@ -6,14 +6,13 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { Roles } from 'src/common/constants/roles';
-import { Role } from 'src/common/guard/roles.decorator';
 import { AdminService } from './admin.service';
 import { AuthService } from '../authentication/auth.service';
-import { AdminLoginDto, AdminRegisterDto } from '../authentication/auth.dto';
 import { UserDto, UserLoginDto, UserRegisterDto } from '../user/users.dto';
-@Role(Roles.ADMIN)
+import { AdminAuthGuard } from 'src/common/guard/admin-auth.guard';
+
 @Controller('admin')
 export class AdminController {
   constructor(
@@ -24,7 +23,7 @@ export class AdminController {
   @Post('/login')
   async adminLogin(@Body() body: UserLoginDto) {
     try {
-      return await this.authService.login(body);
+      return await this.authService.adminLogin(body);
     } catch (err) {
       console.log('Error while loggin in:', err);
       throw err;
@@ -40,6 +39,7 @@ export class AdminController {
     }
   }
   @Get('/user-stats')
+  @UseGuards(AdminAuthGuard)
   async getUserStats(@Body() body:UserDto) {
     try{
      return await this.adminService.getUserStats(body)
@@ -50,6 +50,7 @@ export class AdminController {
   }
 
  @Post('/discount-coupon')
+ @UseGuards(AdminAuthGuard)
   async generateDiscountCoupon(@Body() body: UserDto) {
     try{
         return await this.adminService.generateCoupon(body);
