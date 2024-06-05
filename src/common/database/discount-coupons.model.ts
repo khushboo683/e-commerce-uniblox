@@ -2,7 +2,7 @@
 import {Document, Schema} from 'mongoose';
 import { DiscountCouponStatus } from '../constants/discount-coupon-status';
 
-export interface IDiscountCoupon extends Document{
+export interface IDiscountCoupon{
    userId:string
    code:string
    discountPercent:number

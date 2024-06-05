@@ -6,7 +6,8 @@ interface IOrder{
   productList: any[],
   status: OrderStatus,
   totalAmount:number,
-  discount?:number
+  discount?:number,
+  totalAmountAfterDiscount?:number
 }
 const OrderSchema = new Schema({
    userId: String,
@@ -17,7 +18,8 @@ const OrderSchema = new Schema({
 
    },
    totalAmount: Number,
-   discount:Number
+   discount:Number,
+   totalAmountAfterDiscount:Number
     
   },{timestamps:true});
 

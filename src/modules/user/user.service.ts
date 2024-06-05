@@ -119,7 +119,7 @@ export class UserService {
   }
     const user = await this.getUserDetails(body)
     if((user?.orders.length+1)%5==0)
-    return await this.discountCouponModelHelper.fetchActiveCoupon(query)
+    return await this.discountCouponModelHelper.fetchCoupon(query)
   else throw new Error("User is not elegible for a coupon")
   }
   async checkout(body:OrderCheckoutDto){
@@ -141,7 +141,7 @@ export class UserService {
             userId:mobile,
             code:body?.couponCode
           }
-          couponFromDb=await this.discountCouponModelHelper.fetchActiveCoupon(query)
+          couponFromDb=await this.discountCouponModelHelper.fetchCoupon(query)
           if(couponFromDb?.code!==body?.couponCode){
             throw new Error("Coupon applied is not valid")
           }
@@ -156,8 +156,9 @@ export class UserService {
             userId: user?.mobile,
             productList,
             status: OrderStatus.ORDERED,
-            totalAmount:finalTotalAmt,
-            discount: couponFromDb?.discountPercent??0
+            totalAmount:user?.cart?.cartValue,
+            discount: couponFromDb?.discountPercent??0,
+            totalAmountAfterDiscount:finalTotalAmt
         }
        console.log("orderObj", orderObj)
     const order=await this.orderModelHelper.createOrder(orderObj)

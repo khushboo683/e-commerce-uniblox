@@ -11,7 +11,7 @@ export class OrderModelHelperService{
         @Inject(ORDER_MODEL)
         private orderModel:Model<IOrder>
     ){}
-    async createOrder(body:any){
+    async createOrder(body:IOrder){
      return await this.orderModel.create(body);
     }
     async getOrders(){

@@ -10,12 +10,11 @@ import { DiscountCouponStatus } from 'src/common/constants/discount-coupon-statu
 import { User } from 'src/common/database/user.model';
 import { IDiscountCoupon } from 'src/common/database/discount-coupons.model';
 import DocumentDefinition from "mongoose"
+import { UserDto } from '../user/users.dto';
 @Injectable()
 export class AdminService {
     constructor(
         private userModelHelper: UserModelHelperService,
-        private orderModelHelper: OrderModelHelperService,
-        private productModelHelper:ProductModelHelperService,
         private discountCouponModelHelper: DiscountCouponModelHelperService
     ){}
     generateRandomString = (length: number) => {
@@ -39,7 +38,27 @@ export class AdminService {
     return await this.discountCouponModelHelper.createDiscountCoupon(couponObj)
     }
 
-    async getUserStats(body:any){
-        
+    async getUserStats(body:UserDto){
+     const userStats=await this.userModelHelper.getUserStats(body.mobile)
+     const query={
+        userId:body.mobile
+     }
+     const projection={
+        code:1,
+        status:1
+     }
+     const discountCodes=await this.discountCouponModelHelper.fetchCouponStats(query,projection)
+     return {
+        userStats,
+        discountCodes
+     }
     }
 }
+// userstats { totalItems: 9, totalAmount: 21500, totalDiscountSum: 500 }
+// discountstats [
+//   {
+//     _id: new ObjectId('665f729c4d845debd16b0080'),
+//     code: 'cc8c2a',
+//     status: 'USED'
+//   }
+// ]

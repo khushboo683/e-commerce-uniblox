@@ -6,9 +6,6 @@ import { User } from 'src/common/database/user.model';
 
 @Injectable()
 export class UserModelHelperService {
-  findOne(arg0: { mobile: string; }) {
-      throw new Error('Method not implemented.');
-  }
   constructor(
     @Inject(USER_MODEL)
     private userModel: Model<User>,
@@ -18,7 +15,7 @@ export class UserModelHelperService {
     return await this.userModel.create(input);
   }
   async findUserWithMobile(mobile:string){
-return await this.userModel.findOne({mobile});
+   return await this.userModel.findOne({mobile});
   }
   async updateAfterOrder(order:IOrder){
     const {userId} = order
@@ -26,7 +23,37 @@ return await this.userModel.findOne({mobile});
       { $push: { orders: order }, $set: {cart: {}} }
     
     return await this.userModel.findOneAndUpdate(
-      {userId},updateBody
+      {mobile:userId},updateBody,{new:true}
     )
+  }
+
+  async getUserStats(mobile:string):Promise<{ totalItemsPurchased: number, totalAmount: number, totalDiscountSum:number }>{
+    const result = await this.userModel.aggregate([
+      { $match: { mobile: mobile } },
+      { $unwind: '$orders' },
+      { $unwind: '$orders.productList' },
+      {
+        $group: {
+          _id: '$_.id',
+          totalItemsPurchased: { $sum: '$orders.productList.count' },
+          totalAmount: { $sum: '$orders.totalAmount' },
+          totalDiscountSum: {
+            $sum: {
+              $multiply: [
+                { $divide: [{ $ifNull: ['$orders.discount', 0] }, 100] },
+                '$orders.totalAmount'
+              ]
+            }
+          }
+        }
+      }
+    ]);
+
+    if (result.length === 0) {
+      return { totalItemsPurchased: 0, totalAmount: 0, totalDiscountSum:0};
+    }
+
+    const { totalItemsPurchased, totalAmount, totalDiscountSum } = result[0];
+    return { totalItemsPurchased, totalAmount , totalDiscountSum};
   }
 }

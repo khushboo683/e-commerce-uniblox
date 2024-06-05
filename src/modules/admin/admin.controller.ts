@@ -40,7 +40,7 @@ export class AdminController {
     }
   }
   @Get('/user-stats')
-  async getUserStats(@Body() body:any) {
+  async getUserStats(@Body() body:UserDto) {
     try{
      return await this.adminService.getUserStats(body)
     }catch(err){
@@ -49,8 +49,7 @@ export class AdminController {
     }
   }
 
-
-  @Post('/discount-coupon')
+ @Post('/discount-coupon')
   async generateDiscountCoupon(@Body() body: UserDto) {
     try{
         return await this.adminService.generateCoupon(body);
