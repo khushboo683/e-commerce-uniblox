@@ -32,8 +32,7 @@ interface ICart {
   }, {
     _id: false,
   });
-interface User extends Document{
-    user: {};
+interface User{
     name: string,
     email: string,
     mobile: string,

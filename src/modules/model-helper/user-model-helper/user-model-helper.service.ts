@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { USER_MODEL } from 'src/common/database/database.constants';
+import { USER_MODEL } from '../../../common/database/database.constants';
 import { IOrder } from 'src/common/database/orders.model';
 import { ICart, User } from 'src/common/database/user.model';
 
@@ -14,7 +14,7 @@ export class UserModelHelperService {
   async createUser(input: any) {
     return await this.userModel.create(input);
   }
-  async findUserWithMobile(mobile:string){
+  async findUserWithMobile(mobile:string):Promise<User>{
    return await this.userModel.findOne({mobile});
   }
   async updateAfterOrder(order:IOrder){

@@ -1,7 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Model } from "mongoose";
-import { OrderStatus } from "src/common/constants/order-status";
-import { ORDER_MODEL } from "src/common/database/database.constants";
+import { ORDER_MODEL } from "../../../common/database/database.constants";
 import { IOrder } from "src/common/database/orders.model";
 
 @Injectable()

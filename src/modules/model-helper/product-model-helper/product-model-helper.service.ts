@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Model } from "mongoose";
-import { PRODUCT_MODEL } from "src/common/database/database.constants";
+import { PRODUCT_MODEL } from "../../../common/database/database.constants";
 import { IProduct } from "src/common/database/product.model";
 
 @Injectable()

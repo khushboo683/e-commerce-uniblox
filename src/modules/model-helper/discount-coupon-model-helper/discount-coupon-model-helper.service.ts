@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { FilterQuery, Model, ProjectionType } from "mongoose";
-import { DiscountCouponStatus } from "src/common/constants/discount-coupon-status";
-import { DISCOUNT_COUPON_MODEL } from "src/common/database/database.constants";
+import { DiscountCouponStatus } from "../../../common/constants/discount-coupon-status";
+import { DISCOUNT_COUPON_MODEL } from "../../../common/database/database.constants";
 import { IDiscountCoupon } from "src/common/database/discount-coupons.model";
 
 @Injectable()
@@ -12,15 +12,15 @@ export class DiscountCouponModelHelperService{
     ){
 
     }
-    async createDiscountCoupon(body:any){
-        await this.discountCouponModel.create(body)
+    async createDiscountCoupon(body:IDiscountCoupon):Promise<IDiscountCoupon>{
+       return await this.discountCouponModel.create(body)
     }
 
     async fetchCoupon(query: FilterQuery<IDiscountCoupon>){
     
        return await this.discountCouponModel.findOne(query)
     }
-    async fetchCouponStats(query:FilterQuery<IDiscountCoupon>, projection:ProjectionType<IDiscountCoupon>){
+    async fetchCouponStats(query:FilterQuery<IDiscountCoupon>, projection:ProjectionType<IDiscountCoupon>):Promise<{ code: string, status: DiscountCouponStatus}[]>{
         return await this.discountCouponModel.find(query, projection)
     }
     async deactivateExpiredCopons(orderNo:number, mobile:string){
