@@ -11,6 +11,7 @@ import { ProductModelHelperService } from '../model-helper/product-model-helper/
 import { OrderModelHelperService } from '../model-helper/order-model-helper/order-model-helper.service';
 import { ConfigModule } from '@nestjs/config';
 import { USER_MODEL, DISCOUNT_COUPON_MODEL, PRODUCT_MODEL, ADMIN_MODEL, ORDER_MODEL } from '../../common/database/database.constants';
+import { AdminController } from './admin.controller';
 
 describe('AdminService', () => {
   let service: AdminService;

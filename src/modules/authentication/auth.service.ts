@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserModelHelperService } from '../model-helper/user-model-helper/user-model-helper.service';
 import * as bcrypt from 'bcrypt';
 import { UserLoginDto, UserRegisterDto } from '../user/users.dto';
-import { Roles } from 'src/common/constants/roles';
+import { Roles } from '../../common/constants/roles';
 import { AdminModelHelperService } from '../model-helper/admin-model-helper/admin-model-helper.service';
 
 

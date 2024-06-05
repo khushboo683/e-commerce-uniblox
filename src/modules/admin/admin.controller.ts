@@ -11,7 +11,7 @@ import {
 import { AdminService } from './admin.service';
 import { AuthService } from '../authentication/auth.service';
 import { UserDto, UserLoginDto, UserRegisterDto } from '../user/users.dto';
-import { AdminAuthGuard } from 'src/common/guard/admin-auth.guard';
+import { AdminAuthGuard } from '../../common/guard/admin-auth.guard';
 
 @Controller('admin')
 export class AdminController {

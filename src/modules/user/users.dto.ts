@@ -1,6 +1,6 @@
 import { IsEnum, IsOptional, IsString } from "class-validator"
-import { CartActions } from "src/common/constants/cart-actions"
-import { Roles } from "src/common/constants/roles"
+import { CartActions } from "../../common/constants/cart-actions"
+import { Roles } from "../../common/constants/roles"
 
 export class UserDto{
     @IsString()

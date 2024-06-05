@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Model } from "mongoose";
-import { Admin } from "src/common/database/admin.model";
-import { ADMIN_MODEL } from "src/common/database/database.constants";
+import { Admin } from "../../../common/database/admin.model";
+import { ADMIN_MODEL } from "../../../common/database/database.constants";
 import { UserRegisterDto } from "src/modules/user/users.dto";
 
 @Injectable()
