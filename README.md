@@ -44,7 +44,11 @@ $ npm run test:cov
 ## Technologies Used
 
 Backend Framework: NestJS
+
 Programming Language: TypeScript
+
 Database: MongoDB
+
 Containerization: Docker
+
 Cloud Provider: AWS EC2
