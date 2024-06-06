@@ -50,7 +50,7 @@ export class UserService {
       throw new NotFoundException('User does not exist');
     }
     let itemIndex = -1;
-    if (user.cart)
+    if (user?.cart?.productList)
       itemIndex = user?.cart?.productList?.findIndex(
         (item) => item.productId === productId,
       );
@@ -65,6 +65,13 @@ export class UserService {
         if (product?.inStock == false) {
           throw new BadRequestException('Product sold out');
         } else {
+          //If cart is not already present, initialize one
+          if (!user.cart) {
+            user.cart = {
+              productList: [],
+              cartValue: 0,
+            };
+          }
           const prodObj: ICart = {
             productList: [
               {
@@ -81,6 +88,7 @@ export class UserService {
             user.cart.productList[itemIndex].count += 1;
           } else {
             // If the item does not exist, add it with count 1
+            user
             user.cart.productList.push(...prodObj.productList);
           }
           user.cart.cartValue += product?.price;

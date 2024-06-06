@@ -13,7 +13,10 @@ import { AdminModelHelperModule } from './modules/model-helper/admin-model-helpe
 
 @Module({
   imports: [
-    ConfigModule.forRoot(), 
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [`./.env`],
+    }), 
     MongooseModule.forRoot(process.env.DATABASE_URL), 
     UserModule,
     AdminModule,
