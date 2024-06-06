@@ -12,6 +12,9 @@ Lists count of items purchased, total purchase amount, list of discount codes an
 ## Installation
 
 ```bash
+$ git clone https://github.com/your-username/uniblox-backend.git
+$ cd uniblox-backend
+
 $ npm install
 ```
 
@@ -24,8 +27,6 @@ $ npm run start
 # watch mode
 $ npm run start:dev
 
-# production mode
-$ npm run start:prod
 ```
 
 ## Test
