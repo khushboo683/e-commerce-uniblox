@@ -12,7 +12,7 @@ Lists count of items purchased, total purchase amount, list of discount codes an
 ## Installation
 
 ```bash
-$ git clone https://github.com/your-username/uniblox-backend.git
+$ git clone https://github.com/khushboo683/uniblox-backend.git
 $ cd uniblox-backend
 
 $ npm install
